@@ -14,6 +14,7 @@
             align-items: center;
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
+            overflow: hidden;
         }
         
         .centered-text {
@@ -22,12 +23,53 @@
             text-align: center;
             color: #333;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: absolute;
+            transition: all 0.3s ease;
+            cursor: default;
+            user-select: none;
         }
     </style>
 </head>
 <body>
-    <div class="centered-text">
+    <div class="centered-text" id="avoiding-text">
         ANYÁDAT AZÉRT MEGBASZTAM
     </div>
+
+    <script>
+        const text = document.getElementById('avoiding-text');
+        const body = document.body;
+        
+        // Set the minimum distance the text should keep from cursor
+        const minDistance = 700;
+        const repulsionForce = 3; // Multiplier to make movement more aggressive
+        
+        body.addEventListener('mousemove', (e) => {
+            const rect = text.getBoundingClientRect();
+            const textCenterX = rect.left + rect.width / 2;
+            const textCenterY = rect.top + rect.height / 2;
+            
+            const mouseX = e.clientX;
+            const mouseY = e.clientY;
+            
+            const distanceX = mouseX - textCenterX;
+            const distanceY = mouseY - textCenterY;
+            const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+            
+            // If mouse is closer than minimum distance, push text away aggressively
+            if (distance < minDistance) {
+                const pushDistance = (minDistance - distance) * repulsionForce;
+                const pushX = (distanceX / distance) * pushDistance;
+                const pushY = (distanceY / distance) * pushDistance;
+                
+                text.style.transform = `translate(${-pushX}px, ${-pushY}px)`;
+            } else {
+                // Gradually return to center when mouse is far enough
+                const currentTransform = text.style.transform;
+                if (currentTransform && currentTransform !== 'translate(0px, 0px)') {
+                    text.style.transform = 'translate(0px, 0px)';
+                }
+            }
+        });
+    </script>
 </body>
 </html>
